@@ -7,6 +7,7 @@ import com.polytech.services.FeedService;
 import com.polytech.services.PublicationService;
 import com.polytech.services.UserService;
 import com.polytech.web.FeedController;
+import com.zaxxer.hikari.HikariDataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -51,8 +52,13 @@ public class AppConfig {
 
     @Bean
     public DataSource dataSource() {
-        return new EmbeddedDatabaseBuilder()
+        //return new EmbeddedDatabaseBuilder()
                 //.addScripts("schema.sql")
-                .build();
+          //      .build();
+        HikariDataSource hikariDataSource = new HikariDataSource();
+        hikariDataSource.setJdbcUrl("jdbc:mysql://localhost/data_base_name");
+        hikariDataSource.setUsername("user");
+        hikariDataSource.setPassword("password");
+        return hikariDataSource;
     }
 }
