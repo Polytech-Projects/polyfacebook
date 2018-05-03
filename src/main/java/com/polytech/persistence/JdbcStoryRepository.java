@@ -1,6 +1,8 @@
 package com.polytech.persistence;
 
 import com.polytech.services.Story;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -10,38 +12,22 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class JdbcStoryRepository implements StoryRepository {
+    private JdbcTemplate jdbcTemplate;
 
-
-    private Connection connection;
-
-
-    public JdbcStoryRepository(Connection connection) {
-        this.connection = connection;
+    public JdbcStoryRepository(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     public void save(Story story) {
-        String query = "INSERT INTO STORY (CONTENT)VALUES('" + story.getContent() + "')";
-        try {
-            Statement statement = connection.createStatement();
-            statement.execute(query);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        jdbcTemplate.update("INSERT INTO STORY (CONTENT)VALUES(?)", story.getContent());
     }
 
     public List<Story> findAll() {
-        String query = "SELECT * FROM STORY";
-        List<Story> stories = new ArrayList<>();
-        try {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(query);
-            while (resultSet.next()) {
-                String content = resultSet.getString("CONTENT");
-                stories.add(new Story(content));
+        return jdbcTemplate.query("SELECT * FROM STORY", new RowMapper<Story>() {
+            @Override
+            public Story mapRow(ResultSet resultSet, int i) throws SQLException {
+                return new Story(resultSet.getString("CONTENT"));
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-        return stories;
+        });
     }
 }
